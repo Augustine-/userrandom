@@ -13,37 +13,20 @@ app.get('/', (req, res) => {
 });
 
 app.get('/getUser', async (req, res) => {
-    try {
-        const response = await axios.get('https://randomuser.me/api/');
-        res.json(response.data.results[0]);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch user details' });
-    }
+    const { data } = await axios.get('https://randomuser.me/api/');
+    res.json(data.results[0]);
 });
 
 app.post('/getSpecificUserDetails', async (req, res) => {
-    const fields = req.body.fields;
-    if (!Array.isArray(fields)) {
-        return res.status(400).json({ error: "'Fields' should be an array." })
-    }
+    const { fields } = req.body;
+    const { data } = await axios.get('https://randomuser.me/api/');
 
-    try {
-        const response = await axios.get('https://randomuser.me/api/');
-        const rawUser = response.data.results[0];
+    const user = data.results[0];
+    const result = {};
 
-        const filteredUser = fields.reduce((result, field) => {
-            if (rawUser[field] !== undefined) {
-                result[field] = rawUser[field]
-            }
-
-            return result;
-        }, {});
-
-        res.json(filteredUser);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch user details.' });
-    }
-});
+    fields.forEach(field => result[field] = user[field])
+    res.json(result);
+})
 
 
 app.listen(PORT, () => {
