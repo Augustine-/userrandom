@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Random User API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        .checkbox-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Random User Information</h1>
+    <button id="randomUserButton">Get Random User</button>
+    <div class="checkbox-container">
+        <h3>Select Properties</h3>
+        <label><input type="checkbox" value="gender"> Gender</label><br>
+        <label><input type="checkbox" value="name"> Name</label><br>
+        <label><input type="checkbox" value="location"> Location</label><br>
+        <label><input type="checkbox" value="email"> Email</label><br>
+        <label><input type="checkbox" value="login"> Login</label><br>
+        <label><input type="checkbox" value="registered"> Registered</label><br>
+        <label><input type="checkbox" value="dob"> Date of Birth</label><br>
+        <label><input type="checkbox" value="phone"> Phone</label><br>
+        <label><input type="checkbox" value="cell"> Cell</label><br>
+        <label><input type="checkbox" value="id"> ID</label><br>
+        <label><input type="checkbox" value="picture"> Picture</label><br>
+        <label><input type="checkbox" value="nat"> Nationality</label><br>
+    </div>
+    <div id="output" style="margin-top: 20px;"></div>
+    <script>
+        document.getElementById('randomUserButton').addEventListener('click', async () => {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            const selectedFields = Array.from(checkboxes).map(cb => cb.value);
+
+            let response;
+            try {
+                if (selectedFields.length === 0) {
+                    response = await fetch('/getUser');
+                } else {
+                    response = await fetch('/getSpecificUserDetails', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ fields: selectedFields })
+                    });
+                }
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const outputDiv = document.getElementById('output');
+                outputDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('output').innerText = 'An error occurred while fetching data.';
+            }
+        });
+    </script>
+</body>
+
+</html>
